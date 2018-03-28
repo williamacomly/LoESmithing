@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LoESmithing">
+    <output-path>$PROJECT_DIR$/out/artifacts/LoESmithing</output-path>
+    <root id="archive" name="LoESmithing.jar">
+      <element id="library" level="project" name="spigot" />
+      <element id="module-output" name="LoESmithing" />
+      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
+    </root>
+  </artifact>
+</component>
