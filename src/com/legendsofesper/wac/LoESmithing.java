@@ -25,12 +25,12 @@ public class LoESmithing extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println("LoESmithing[0.0]: ENABLED");
+
     }
 
     @Override
     public void onDisable() {
-        System.out.println("LoESmithing[0.0]: DISABLED");
+
     }
 
     private void registerCommands(){
