@@ -1,15 +1,17 @@
 //***********************************************
 //
 // File:    LoESmithing.java
-// Package: ---
+// Package: com.legendsofesper.wac.loesmithing
 // Class:   LoESmithing
 //
 // Author:  William Comly <williamacomly@gmail.com>
 //
 //***********************************************
 
-package com.legendsofesper.wac;
+package com.legendsofesper.wac.loesmithing;
 
+import com.legendsofesper.wac.loesmithing.sword.SwordCreation;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,7 +27,10 @@ public class LoESmithing extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        pluginManager = Bukkit.getServer().getPluginManager();
 
+        registerCommands();
+        registerEvents();
     }
 
     @Override
@@ -38,6 +43,6 @@ public class LoESmithing extends JavaPlugin {
     }
 
     private void registerEvents(){
-
+        pluginManager.registerEvents(new SwordCreation(), this);
     }
 }

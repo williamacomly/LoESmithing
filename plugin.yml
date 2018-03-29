@@ -1,6 +1,6 @@
 name: LoESmithing
-main: com.legendsofesper.wac.LoESmithing
-version: 0.0
+main: com.legendsofesper.wac.loesmithing.LoESmithing
+version: 0.1
 description: Controls commands, events, and functionality of LoE's unique smithing system.
 
 commands:
