@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -65,7 +66,7 @@ public class SwordCreation implements Listener {
                 player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 20, 0);
             }
             // handle Andaryll heating
-            else if(item.getType() == Material.LAPIS_ORE && item.hasItemMeta()){
+            else if(item.getType() == Material.NETHER_BRICK_ITEM && item.hasItemMeta()){
                 if(item.getItemMeta().getLocalizedName().equals("Andaryll")){
                     // remove old item from inventory
                     if(item.getAmount() == 1){
@@ -75,7 +76,7 @@ public class SwordCreation implements Listener {
                     }
 
                     // create the new ore item and give it meta data to reflect the change
-                    ItemStack newOre = new ItemStack(Material.LAPIS_ORE, 1);
+                    ItemStack newOre = new ItemStack(Material.NETHER_BRICK_ITEM, 1);
                     ItemMeta ingotMeta = newOre.getItemMeta();
                     ingotMeta.setLocalizedName("§4[Heated] §fAndaryll");
                     newOre.setItemMeta(ingotMeta);
@@ -153,5 +154,15 @@ public class SwordCreation implements Listener {
         }
 
         return true;
+    }
+
+    @EventHandler
+    public boolean onOreShape(PlayerItemHeldEvent phe){
+        Player player = phe.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if(item.getItemMeta().getLocalizedName().equals("§4[Heated] §fIron Ingot") && item.getType().equals(Material.IRON_INGOT)){
+            
+        }
     }
 }
