@@ -31,7 +31,6 @@ import org.bukkit.inventory.meta.ItemMeta;
  *
  * TODO: clean up and refractor code to cut down on unnecessary copies of blocks
  *
- * @author  William Comly
  * @version 4-Apr-2018
  */
 public class GeneralCreation implements Listener{
@@ -224,14 +223,14 @@ public class GeneralCreation implements Listener{
                 player.getOpenInventory().close();
                 player.openInventory(menu);
             }
-            // for andaryll items
-            else if(item.getType() == Material.NETHER_BRICK_ITEM &&
+            // for serasyll items
+            else if(item.getType() == Material.REDSTONE &&
                     item.getItemMeta().getLocalizedName().
-                    equals("§4[Heated] §fAndaryll")){
-                // create Andaryll sword and set position in menu
+                    equals("§4[Heated] §fSerasyll")){
+                // create Serasyll sword and set position in menu
                 ItemStack sword = new ItemStack(Material.GOLD_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
-                swordMeta.setLocalizedName("Andaryll Sword");
+                swordMeta.setLocalizedName("Serasyll Sword");
                 sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
 
@@ -239,26 +238,26 @@ public class GeneralCreation implements Listener{
                 player.getOpenInventory().close();
                 player.openInventory(menu);
             }
-            // for serasyll items
-            else if(item.getType() == Material.REDSTONE &&
+            // for andaryll items
+            else if(item.getType() == Material.NETHER_BRICK_ITEM &&
                     item.getItemMeta().getLocalizedName().
-                            equals("§4[Heated] §fSerasyll")){
-                //create Serasyll helmet for use in menu and set position
+                            equals("§4[Heated] §fAndaryll")){
+                //create Andaryll helmet for use in menu and set position
                 ItemStack helmet = new ItemStack(Material.GOLD_HELMET);
                 ItemMeta helmetMeta = helmet.getItemMeta();
-                helmetMeta.setLocalizedName("Serasyll Helmet");
+                helmetMeta.setLocalizedName("Andaryll Helmet");
                 helmet.setItemMeta(helmetMeta);
                 menu.setItem(4, helmet);
-                // create Serasyll chest plate and set position in menu
+                // create Andaryll chest plate and set position in menu
                 ItemStack chestPlate = new ItemStack(Material.GOLD_CHESTPLATE);
                 ItemMeta chestPlateMeta = chestPlate.getItemMeta();
-                chestPlateMeta.setLocalizedName("Serasyll Chestplate");
+                chestPlateMeta.setLocalizedName("Andaryll Chestplate");
                 chestPlate.setItemMeta(chestPlateMeta);
                 menu.setItem(13, chestPlate);
-                // create Serasyll legging and set position in menu
+                // create Andaryll legging and set position in menu
                 ItemStack leggings = new ItemStack(Material.GOLD_LEGGINGS);
                 ItemMeta leggingsMeta = leggings.getItemMeta();
-                leggingsMeta.setLocalizedName("Serasyll Leggings");
+                leggingsMeta.setLocalizedName("Andaryll Leggings");
                 leggings.setItemMeta(leggingsMeta);
                 menu.setItem(22, leggings);
 

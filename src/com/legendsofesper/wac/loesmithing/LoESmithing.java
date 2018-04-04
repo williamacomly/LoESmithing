@@ -10,7 +10,7 @@
 
 package com.legendsofesper.wac.loesmithing;
 
-import com.legendsofesper.wac.loesmithing.sword.SwordCreation;
+import com.legendsofesper.wac.loesmithing.sword.SwordShaping;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +20,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * disable. Also registers and activates events and commands contained
  * elsewhere.
  *
- * @author  William Comly <williamacomly@gmail.com>
  * @version 28-Mar-2018
  */
 public class LoESmithing extends JavaPlugin {
@@ -44,7 +43,7 @@ public class LoESmithing extends JavaPlugin {
     }
 
     private void registerEvents(){
-        pluginManager.registerEvents(new SwordCreation(), this);
+        pluginManager.registerEvents(new SwordShaping(), this);
         pluginManager.registerEvents(new GeneralCreation(), this);
     }
 }
