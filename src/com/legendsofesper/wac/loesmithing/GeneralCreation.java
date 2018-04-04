@@ -215,7 +215,7 @@ public class GeneralCreation implements Listener{
                 // create Iron legging and set position in menu
                 ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
                 menu.setItem(22, leggings);
-                // create sword and set position in menu
+                // create tools and set position in menu
                 ItemStack sword = new ItemStack(Material.IRON_SWORD);
                 menu.setItem(11, sword);
 
@@ -227,7 +227,7 @@ public class GeneralCreation implements Listener{
             else if(item.getType() == Material.REDSTONE &&
                     item.getItemMeta().getLocalizedName().
                     equals("§4[Heated] §fSerasyll")){
-                // create Serasyll sword and set position in menu
+                // create Serasyll tools and set position in menu
                 ItemStack sword = new ItemStack(Material.GOLD_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
                 swordMeta.setLocalizedName("Serasyll Sword");
@@ -269,7 +269,7 @@ public class GeneralCreation implements Listener{
             else if(item.getType() == Material.DIAMOND &&
                     item.getItemMeta().getLocalizedName().
                             equals("§4[Heated] §fAdamantium")){
-                // create Adamantium sword and set position in menu
+                // create Adamantium tools and set position in menu
                 ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
                 swordMeta.setLocalizedName("Adamantium Sword");
@@ -380,7 +380,7 @@ public class GeneralCreation implements Listener{
                 }
 
                 unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Helmet");
+                    getLocalizedName() + "Helmet§0§0");
                 unfinishedItem.setItemMeta(unfinishedMeta);
                 ice.getWhoClicked().getInventory().addItem(unfinishedItem);
 
@@ -406,7 +406,7 @@ public class GeneralCreation implements Listener{
                 }
 
                 unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Chestplate");
+                    getLocalizedName() + "Chestplate§0§0");
                 unfinishedItem.setItemMeta(unfinishedMeta);
                 ice.getWhoClicked().getInventory().addItem(unfinishedItem);
 
@@ -431,7 +431,7 @@ public class GeneralCreation implements Listener{
                 }
 
                 unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Leggings");
+                    getLocalizedName() + "Leggings§0§0");
                 unfinishedItem.setItemMeta(unfinishedMeta);
                 ice.getWhoClicked().getInventory().addItem(unfinishedItem);
 
@@ -449,7 +449,7 @@ public class GeneralCreation implements Listener{
                 // close menu when successfully made choice
                 ice.getWhoClicked().closeInventory();
             }
-            // clicked on slot with sword, give unfin. sword. Can't use
+            // clicked on slot with tools, give unfin. tools. Can't use
             //   Mythril or Andaryll as they're only for armor
             else if(ice.getSlot() == 11 && !item.getItemMeta().
                     getLocalizedName().contains("Andaryll") &&
@@ -462,7 +462,7 @@ public class GeneralCreation implements Listener{
                 }
 
                 unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Sword");
+                    getLocalizedName() + "Sword§0§0");
                 unfinishedItem.setItemMeta(unfinishedMeta);
                 ice.getWhoClicked().getInventory().addItem(unfinishedItem);
 
