@@ -39,7 +39,7 @@ public class LoESmithing extends JavaPlugin {
     }
 
     private void registerCommands(){
-
+        this.getCommand("giveore").setExecutor(new RenameCommand());
     }
 
     private void registerEvents(){

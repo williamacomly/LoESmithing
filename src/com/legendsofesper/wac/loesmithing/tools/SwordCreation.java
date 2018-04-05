@@ -29,6 +29,9 @@ import java.util.Random;
  * TODO: update skill check to work with server skills plugin
  * TODO: finish sword cooling step of shaping phase
  * TODO: finish grinding phase
+ * TODO: make sure anvil inventory closed, test sounds
+ * TODO: add new item instead of changing names
+ * TODO: handle redstone wanting to be placed on blocks instead of interact
  *
  * @version 4-Apr-2018
  */
@@ -51,19 +54,19 @@ public class SwordCreation implements Listener {
             }
 
             ItemMeta newMeta = item.getItemMeta();
-            // for iron tools
+            // for iron sword
             if(item.getType() == Material.IRON_INGOT &&
                     itemName.equals("Unfinished Iron Sword" + hiddenMeta)){
                 newMeta.setLocalizedName("§4[Heated] §fUnfinished Iron Sword" +
                         hiddenMeta);
             }
-            // on serasyll tools
+            // on serasyll sword
             else if(item.getType() == Material.REDSTONE &&
                     itemName.equals("Unfinished Serasyll Sword" + hiddenMeta)){
                 newMeta.setLocalizedName("§4[Heated] §fUnfinished Serasyll" +
                         " Sword" + hiddenMeta);
             }
-            // on adamantium tools
+            // on adamantium sword
             else if(item.getType() == Material.DIAMOND &&
                     itemName.equals("Unfinished Adamantium Sword" +
                             hiddenMeta)){
@@ -105,19 +108,19 @@ public class SwordCreation implements Listener {
             int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
 
             int amountToPassCheck;
-            // for iron tools
+            // for iron sword
             if(item.getType() == Material.IRON_INGOT &&
                     itemName.equals("§4[Heated] §fUnfinished Iron Sword" +
                             hiddenMeta)){
                 amountToPassCheck = 40;
             }
-            // on serasyll tools
+            // on serasyll sword
             else if(item.getType() == Material.REDSTONE &&
                     itemName.equals("§4[Heated] §fUnfinished Serasyll Sword" +
                             hiddenMeta)){
                 amountToPassCheck = 70;
             }
-            // on adamantium tools
+            // on adamantium sword
             else if(item.getType() == Material.DIAMOND &&
                     itemName.equals("§4[Heated] §fUnfinished Adamantium Sword" +
                             hiddenMeta)){
@@ -134,6 +137,13 @@ public class SwordCreation implements Listener {
             qualityPoints = (checkValue >= amountToPassCheck) ?
                     qualityPoints++ : qualityPoints--;
 
+            // remove item from inventory
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
+
             // play sound for immersion
             player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
                     20, 0);
@@ -144,7 +154,8 @@ public class SwordCreation implements Listener {
                     qualityPoints;
 
             // set new item meta with updated hidden meta
-            ItemMeta meta = item.getItemMeta();
+            ItemStack newItem = new ItemStack(item.getType());
+            ItemMeta meta = newItem.getItemMeta();
             meta.setLocalizedName(newItemName);
             item.setItemMeta(meta);
         }
@@ -173,23 +184,75 @@ public class SwordCreation implements Listener {
             int timesHammered = ((int)hiddenMeta.charAt(1)) - 48;
             int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
 
-            // for iron tools
+            String newName;
+            Material swordType;
+            Material oreType;
+            // for iron Sword
             if(item.getType() == Material.IRON_INGOT &&
                     itemName.equals("§4[Heated] §fUnfinished Iron Sword" +
                             hiddenMeta)){
+                newName = "Iron Sword";
+
+                swordType = Material.IRON_SWORD;
+                oreType = Material.IRON_INGOT;
             }
-            // on serasyll tools
+            // on serasyll Sword
             else if(item.getType() == Material.REDSTONE &&
                     itemName.equals("§4[Heated] §fUnfinished Serasyll Sword" +
                             hiddenMeta)){
+                newName = "Serasyll Sword";
+
+                swordType = Material.GOLD_SWORD;
+                oreType = Material.REDSTONE;
             }
-            // on adamantium tools
+            // on adamantium Sword
             else if(item.getType() == Material.DIAMOND &&
                     itemName.equals("§4[Heated] §fUnfinished Adamantium Sword" +
                             hiddenMeta)){
+                newName = "Adamantium Sword";
+
+                swordType = Material.DIAMOND_SWORD;
+                oreType = Material.DIAMOND;
             }else{
                 return true;
             }
+
+            //
+            String state;
+            ItemStack newItem;
+            // moving onto grinding phase
+            if(timesHammered >= 3){
+                state = "Unsharpened";
+                hiddenMeta = "§0§" + qualityPoints;
+
+                newItem = new ItemStack(swordType);
+            }
+            // staying in shaping phase
+            else{
+                state = "Unfinished";
+                hiddenMeta = "§" + timesHammered + "§" + qualityPoints;
+
+                newItem = new ItemStack(oreType);
+            }
+
+            // remove item from inventory
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
+
+            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH,
+                    20, 0);
+
+            // create new item with appropriate meta and give to player
+            String metaName = state + " " + newName + hiddenMeta;
+            ItemMeta newMeta = newItem.getItemMeta();
+            newMeta.setLocalizedName(metaName);
+
+            newItem.setItemMeta(newMeta);
+
+            player.getInventory().addItem(newItem);
         }
 
         return true;
