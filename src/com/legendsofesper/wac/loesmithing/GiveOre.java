@@ -9,7 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 /**
- * Created by liveastro on 4/5/2018.
+ * Get a copy of the new, LoE specific materials for smithing testing
+ *
+ * @version 5-Apr-2018
  */
 public class RenameCommand implements CommandExecutor{
     // give player requested special ore for tetsing

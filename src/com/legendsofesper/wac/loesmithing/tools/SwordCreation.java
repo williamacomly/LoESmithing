@@ -33,7 +33,7 @@ import java.util.Random;
  * TODO: add new item instead of changing names
  * TODO: handle redstone wanting to be placed on blocks instead of interact
  *
- * @version 4-Apr-2018
+ * @version 5-Apr-2018
  */
 public class SwordCreation implements Listener {
     // event handler for heating unfinished swords at magma block
