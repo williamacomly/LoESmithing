@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
  *
  * @version 5-Apr-2018
  */
-public class RenameCommand implements CommandExecutor{
+public class GiveOre implements CommandExecutor{
     // give player requested special ore for tetsing
     @Override
     public boolean onCommand(CommandSender sender, Command command,
@@ -36,6 +36,12 @@ public class RenameCommand implements CommandExecutor{
                 }else if(args[0].equals("adamantium")){
                     newItem = new ItemStack(Material.DIAMOND);
                     itemName = "Adamantium";
+                }else if(args[0].equals("iron")){
+                    newItem = new ItemStack(Material.IRON_INGOT);
+                    itemName = "Iron Ingot";
+                }else if(args[0].equals("water")){
+                    newItem = new ItemStack(Material.STATIONARY_WATER);
+                    itemName = "Water";
                 }else{
                     return true;
                 }

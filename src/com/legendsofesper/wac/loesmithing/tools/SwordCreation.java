@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Cauldron;
 
 import java.util.Random;
 
@@ -27,11 +28,9 @@ import java.util.Random;
  * Implementation for Sword Shaping process event handlers.
  *
  * TODO: update skill check to work with server skills plugin
- * TODO: finish sword cooling step of shaping phase
  * TODO: finish grinding phase
- * TODO: make sure anvil inventory closed, test sounds
- * TODO: add new item instead of changing names
- * TODO: handle redstone wanting to be placed on blocks instead of interact
+ * TODO: change hidden meta data checks to add one more field
+ * (for checking if needs to be hammered or cooled so no infinite skill checks)
  *
  * @version 5-Apr-2018
  */
@@ -39,6 +38,11 @@ public class SwordCreation implements Listener {
     // event handler for heating unfinished swords at magma block
     @EventHandler
     public boolean onUnfinishedSwordHeat(PlayerInteractEvent pie){
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
         Player player = pie.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
@@ -76,12 +80,21 @@ public class SwordCreation implements Listener {
                 return true;
             }
 
+            // remove item from inventory
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
+
             // play sound for immersion
             player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
                     20, 0);
 
-            // set item's name and give to player
-            item.setItemMeta(newMeta);
+            // set new heated item's name and give to player
+            ItemStack newItem = new ItemStack(item.getType());
+            newItem.setItemMeta(newMeta);
+            player.getInventory().addItem(newItem);
         }
 
         return true;
@@ -89,12 +102,20 @@ public class SwordCreation implements Listener {
 
     @EventHandler
     public boolean onUnfinishedSwordHammer(PlayerInteractEvent pie){
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
         Player player = pie.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
         if(player.isSneaking() && pie.getClickedBlock().getType() ==
                 Material.ANVIL && pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
+            // close auto anvil inventory
+            player.getOpenInventory().close();
+
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
             if(itemName.length() >= 4){
@@ -153,11 +174,12 @@ public class SwordCreation implements Listener {
                     itemName.length() - 4) + "§" + timesHammered + "§" +
                     qualityPoints;
 
-            // set new item meta with updated hidden meta
+            // set new item meta with updated hidden meta and give to player
             ItemStack newItem = new ItemStack(item.getType());
-            ItemMeta meta = newItem.getItemMeta();
+            ItemMeta meta = item.getItemMeta();
             meta.setLocalizedName(newItemName);
-            item.setItemMeta(meta);
+            newItem.setItemMeta(meta);
+            player.getInventory().addItem(newItem);
         }
 
         return true;
@@ -165,11 +187,24 @@ public class SwordCreation implements Listener {
 
     @EventHandler
     public boolean onUnfinishedSwordCool(PlayerInteractEvent pie){
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
         Player player = pie.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        if(player.isSneaking() && pie.getClickedBlock().getType() ==
-                Material.WATER && pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
+        Cauldron cauldron;
+        if(pie.getClickedBlock().getState().getData() instanceof Cauldron)
+            cauldron = ((Cauldron) pie.getClickedBlock().
+                    getState().getData());
+        else
+            return true;
+
+        if(player.isSneaking() &&
+                cauldron.isFull() &&
+                pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;

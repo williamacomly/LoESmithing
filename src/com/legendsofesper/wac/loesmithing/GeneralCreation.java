@@ -29,7 +29,8 @@ import org.bukkit.inventory.meta.ItemMeta;
  * Event handlers and helper moethods that contribute to starting the smithing
  * process for all tools/arms/armor covered by plugin
  *
- * TODO: clean up and refractor code to cut down on unnecessary copies of blocks
+ * TODO: add new hidden meta data for t/f needs to be hammer or cooled
+ * (needs to make sure can't be conintually hammered for more skills)
  *
  * @version 4-Apr-2018
  */
@@ -45,135 +46,76 @@ public class GeneralCreation implements Listener{
      */
     @EventHandler
     public boolean onOreHeat(PlayerInteractEvent pie) {
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
         Player player = pie.getPlayer();
-        ItemStack item = player.getInventory().getItem(player.getInventory().
-            getHeldItemSlot());
+        ItemStack item = player.getInventory().getItemInMainHand();
 
         if(player.isSneaking() && pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
            pie.getClickedBlock().getType() == Material.MAGMA && pie.getHand().
-               equals(EquipmentSlot.HAND)){
+               equals(EquipmentSlot.HAND) && item.hasItemMeta()){
 
+            ItemStack newMaterial;
+            String oldName = item.getItemMeta().getLocalizedName();
+            String newName = "§4[Heated] §f" + oldName;
             // handle iron heating
-            if(item.getType() == Material.IRON_INGOT && !item.hasItemMeta()){
-                // remove old item from inventory
-                if(item.getAmount() == 1){
-                    player.getInventory().remove(item);
-                }else{
-                    item.setAmount(item.getAmount() - 1);
-                }
-
-                // create the new ingot item and give it meta data to reflect
+            if(item.getType() == Material.IRON_INGOT &&
+                    oldName.equals("Iron Ingot")){
+                // create the new ingot item and set meta data to reflect
                 //   the change
-                ItemStack newIngot =
-                    new ItemStack(Material.IRON_INGOT, 1);
-                ItemMeta ingotMeta = newIngot.getItemMeta();
-                ingotMeta.setLocalizedName("§4[Heated] §fIron Ingot");
-                newIngot.setItemMeta(ingotMeta);
-
-                // add item to inventory and play sound clip to signify
-                //   completion
-                player.getInventory().addItem(newIngot);
-                player.playSound(player.getLocation(),
-                                 Sound.BLOCK_LAVA_POP, 20, 0);
+                newMaterial = new ItemStack(Material.IRON_INGOT);
             }
             // handle Andaryll heating
-            else if(item.getType() == Material.NETHER_BRICK_ITEM &&
-                    item.hasItemMeta()){
-                if(item.getItemMeta().getLocalizedName().equals("Andaryll")){
-                    // remove old item from inventory
-                    if(item.getAmount() == 1){
-                        player.getInventory().remove(item);
-                    }else{
-                        item.setAmount(item.getAmount() - 1);
-                    }
-
-                    // create the new ore item and give it meta data to reflect
-                    //   the change
-                    ItemStack newOre = new ItemStack(Material.NETHER_BRICK_ITEM,
-                                                     1);
-                    ItemMeta ingotMeta = newOre.getItemMeta();
-                    ingotMeta.setLocalizedName("§4[Heated] §fAndaryll");
-                    newOre.setItemMeta(ingotMeta);
-
-                    // add item to inventory and play sound clip to signify
-                    //   completion
-                    player.getInventory().addItem(newOre);
-                    player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
-                                     20, 0);
-                }
+            else if(item.getType() == Material.GOLD_INGOT &&
+                    oldName.equals("Andaryll")){
+                // create the new ingot item and set meta data to reflect
+                //   the change
+                newMaterial = new ItemStack(Material.GOLD_INGOT);
             }
             // handle Serasyll heating
-            else if(item.getType() == Material.REDSTONE && item.hasItemMeta()){
-                if(item.getItemMeta().getLocalizedName().equals("Serasyll")){
-                    // remove old item from inventory
-                    if(item.getAmount() == 1){
-                        player.getInventory().remove(item);
-                    }else{
-                        item.setAmount(item.getAmount() - 1);
-                    }
-
-                    // create the new ore item and give it meta data to reflect
-                    //   the change
-                    ItemStack newOre = new ItemStack(Material.REDSTONE, 1);
-                    ItemMeta ingotMeta = newOre.getItemMeta();
-                    ingotMeta.setLocalizedName("§4[Heated] §fSerasyll");
-                    newOre.setItemMeta(ingotMeta);
-
-                    // add item to inventory and play sound clip to signify
-                    //   completion
-                    player.getInventory().addItem(newOre);
-                    player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
-                                     20, 0);
-                }
+            else if(item.getType() == Material.GLOWSTONE_DUST &&
+                    oldName.equals("Serasyll")){
+                // create the new ingot item and set meta data to reflect
+                //   the change
+                newMaterial = new ItemStack(Material.GLOWSTONE_DUST);
             }
             // handle mythril heating
-            else if(item.getType() == Material.EMERALD && item.hasItemMeta()){
-                if(item.getItemMeta().getLocalizedName().equals("Mythril")){
-                    // remove old item from inventory
-                    if(item.getAmount() == 1){
-                        player.getInventory().remove(item);
-                    }else{
-                        item.setAmount(item.getAmount() - 1);
-                    }
-
-                    // create the new ore item and give it meta data to reflect
-                    //   the change
-                    ItemStack newOre = new ItemStack(Material.EMERALD, 1);
-                    ItemMeta ingotMeta = newOre.getItemMeta();
-                    ingotMeta.setLocalizedName("§4[Heated] §fMythril");
-                    newOre.setItemMeta(ingotMeta);
-
-                    // add item to inventory and play sound clip to signify
-                    //   completion
-                    player.getInventory().addItem(newOre);
-                    player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
-                                     20, 0);
-                }
+            else if(item.getType() == Material.EMERALD &&
+                    oldName.equals("Mythril")){
+                // create the new ingot item and set meta data to reflect
+                //   the change
+                newMaterial = new ItemStack(Material.EMERALD);
             }
             // handle adamantium heating
-            else if(item.getType() == Material.DIAMOND && item.hasItemMeta()){
-                if(item.getItemMeta().getLocalizedName().equals("Adamantium")){
-                    // remove old item from inventory
-                    if(item.getAmount() == 1){
-                        player.getInventory().remove(item);
-                    }else{
-                        item.setAmount(item.getAmount() - 1);
-                    }
-
-                    // create the new ore item and give it meta data to reflect
-                    //   the change
-                    ItemStack newOre = new ItemStack(Material.DIAMOND, 1);
-                    ItemMeta ingotMeta = newOre.getItemMeta();
-                    ingotMeta.setLocalizedName("§4[Heated] §fAdamantium");
-                    newOre.setItemMeta(ingotMeta);
-
-                    // add item to inventory and play sound clip to signify
-                    //   completion
-                    player.getInventory().addItem(newOre);
-                    player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
-                                     20, 0);
-                }
+            else if(item.getType() == Material.DIAMOND &&
+                    oldName.equals("Adamantium")){
+                // create the new ingot item and set meta data to reflect
+                //   the change
+                newMaterial = new ItemStack(Material.DIAMOND);
+            }else{
+                return true;
             }
+
+            // remove old item from inventory
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
+
+            // set new status name in new meta data
+            ItemMeta newMeta = item.getItemMeta();
+            newMeta.setLocalizedName(newName);
+            newMaterial.setItemMeta(newMeta);
+
+            // add item to inventory and play sound clip to signify
+            //   completion
+            player.getInventory().addItem(newMaterial);
+            player.playSound(player.getLocation(),
+                    Sound.BLOCK_LAVA_POP, 20, 0);
         }
 
         return true;
@@ -190,6 +132,11 @@ public class GeneralCreation implements Listener{
      */
     @EventHandler
     public boolean onOreShape(PlayerInteractEvent pie){
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
         Player player = pie.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
@@ -201,6 +148,9 @@ public class GeneralCreation implements Listener{
             // menu for players to choose what to make heated ore into
             Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST,
                                                     "Choose what to create");
+
+            // close auto anvil inventory
+            player.getOpenInventory().close();
 
             // for iron items
             if(item.getType() == Material.IRON_INGOT &&
@@ -215,31 +165,29 @@ public class GeneralCreation implements Listener{
                 // create Iron legging and set position in menu
                 ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
                 menu.setItem(22, leggings);
-                // create tools and set position in menu
+                // create iron tools and set position in menu
                 ItemStack sword = new ItemStack(Material.IRON_SWORD);
+                ItemMeta swordMeta = sword.getItemMeta();
+                swordMeta.setLocalizedName("Iron Sword");
+                sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
 
                 // close auto anvil inventory and open configured menu
-                player.getOpenInventory().close();
                 player.openInventory(menu);
             }
             // for serasyll items
-            else if(item.getType() == Material.REDSTONE &&
+            else if(item.getType() == Material.GLOWSTONE_DUST &&
                     item.getItemMeta().getLocalizedName().
                     equals("§4[Heated] §fSerasyll")){
-                // create Serasyll tools and set position in menu
+                // create Serasyll sword and set position in menu
                 ItemStack sword = new ItemStack(Material.GOLD_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
                 swordMeta.setLocalizedName("Serasyll Sword");
                 sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
-
-                // close auto anvil inventory and open configured menu
-                player.getOpenInventory().close();
-                player.openInventory(menu);
             }
             // for andaryll items
-            else if(item.getType() == Material.NETHER_BRICK_ITEM &&
+            else if(item.getType() == Material.GOLD_INGOT &&
                     item.getItemMeta().getLocalizedName().
                             equals("§4[Heated] §fAndaryll")){
                 //create Andaryll helmet for use in menu and set position
@@ -260,25 +208,17 @@ public class GeneralCreation implements Listener{
                 leggingsMeta.setLocalizedName("Andaryll Leggings");
                 leggings.setItemMeta(leggingsMeta);
                 menu.setItem(22, leggings);
-
-                // close auto anvil inventory and open configured menu
-                player.getOpenInventory().close();
-                player.openInventory(menu);
             }
             // for Adamantium items
             else if(item.getType() == Material.DIAMOND &&
                     item.getItemMeta().getLocalizedName().
                             equals("§4[Heated] §fAdamantium")){
-                // create Adamantium tools and set position in menu
+                // create Adamantium sword and set position in menu
                 ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
                 swordMeta.setLocalizedName("Adamantium Sword");
                 sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
-
-                // close auto anvil inventory and open configured menu
-                player.getOpenInventory().close();
-                player.openInventory(menu);
             }
             // for Mythril items
             else if(item.getType() == Material.EMERALD &&
@@ -303,11 +243,12 @@ public class GeneralCreation implements Listener{
                 leggingsMeta.setLocalizedName("Mythril Leggings");
                 leggings.setItemMeta(leggingsMeta);
                 menu.setItem(22, leggings);
-
-                // close auto anvil inventory and open configured menu
-                player.getOpenInventory().close();
-                player.openInventory(menu);
+            }else{
+                return true;
             }
+
+            // open specific menu for material type
+            player.openInventory(menu);
         }
 
         return true;
@@ -327,152 +268,98 @@ public class GeneralCreation implements Listener{
             // get player object for sound playing on create item
             Player player = Bukkit.getPlayer(ice.getWhoClicked().getName());
 
-            // remove heated ingot from inventory
+            // get material object
             ItemStack item = ice.getWhoClicked().
                              getInventory().getItemInMainHand();
 
-            ItemStack unfinishedItem = null;
-            ItemMeta unfinishedMeta = null;
+            ItemStack newItem;
+            String oldName = item.getItemMeta().getLocalizedName();
+            String newName;
             // set unfinished item to handled iron item
-            if(item.getItemMeta().getLocalizedName().contains("Iron Ingot")){
-                unfinishedItem = new ItemStack(Material.IRON_INGOT);
-                unfinishedMeta = unfinishedItem.getItemMeta();
-                unfinishedMeta.setLocalizedName("Unfinished Iron ");
+            if(oldName.equals("§4[Heated] §fIron Ingot")){
+                newItem = new ItemStack(Material.IRON_INGOT);
+                newName = "Unfinished Iron ";
             }
             // set unfinished item to handled Andaryll item
-            else if(item.getItemMeta().getLocalizedName().contains("Andaryll")){
-                unfinishedItem = new ItemStack(Material.NETHER_BRICK_ITEM);
-                unfinishedMeta = unfinishedItem.getItemMeta();
-                unfinishedMeta.setLocalizedName("Unfinished Andaryll ");
+            else if(oldName.equals("§4[Heated] §fAndaryll")){
+                newItem = new ItemStack(Material.GOLD_INGOT);
+                newName = "Unfinished Andaryll ";
             }
             // set unfinished item to handled Serasyll item
-            else if(item.getItemMeta().getLocalizedName().contains("Serasyll")){
-                unfinishedItem = new ItemStack(Material.REDSTONE);
-                unfinishedMeta = unfinishedItem.getItemMeta();
-                unfinishedMeta.setLocalizedName("Unfinished Serasyll ");
+            else if(oldName.equals("§4[Heated] §fSerasyll")){
+                newItem = new ItemStack(Material.GLOWSTONE_DUST);
+                newName = "Unfinished Serasyll ";
             }
             // set unfinished item to handled Mythril
-            else if(item.getItemMeta().getLocalizedName().contains("Mythril")){
-                unfinishedItem = new ItemStack(Material.EMERALD);
-                unfinishedMeta = unfinishedItem.getItemMeta();
-                unfinishedMeta.setLocalizedName("Unfinished Mythril ");
+            else if(oldName.equals("§4[Heated] §fMythril")){
+                newItem = new ItemStack(Material.EMERALD);
+                newName = "Unfinished Mythril ";
             }
             // set unfinished item to handled Adamantium
-            else if(item.getItemMeta().getLocalizedName().
-                    contains("Adamantium")){
-                unfinishedItem = new ItemStack(Material.DIAMOND);
-                unfinishedMeta = unfinishedItem.getItemMeta();
-                unfinishedMeta.setLocalizedName("Unfinished Adamantium ");
+            else if(oldName.equals("§4[Heated] §fAdamantium")){
+                newItem = new ItemStack(Material.DIAMOND);
+                newName = "Unfinished Adamantium ";
+            }else{
+                return true;
             }
 
-            // clicked on slot containing helmet, give unfinished helmet ingot.
+            // clicked on slot containing helmet, prepare ot give helmet with
+            //   hidden meta data (for use in shaping phase).
             //   Can't use Adamantium or Serasyll as they're only for weapons,
             //   tools
-            if(ice.getSlot() == 4 && !item.getItemMeta().
-                    getLocalizedName().contains("Serasyll") &&
-                    !item.getItemMeta().
-                    getLocalizedName().contains("Adamantium")){
-                // remove item from inventory
-                if(item.getAmount() == 1){
-                    ice.getWhoClicked().getInventory().remove(item);
-                }else{
-                    item.setAmount(item.getAmount() - 1);
-                }
-
-                unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Helmet§0§0");
-                unfinishedItem.setItemMeta(unfinishedMeta);
-                ice.getWhoClicked().getInventory().addItem(unfinishedItem);
-
-                // play anvil sound for successful item creation
-                player.playSound(player.getLocation(),
-                                 Sound.BLOCK_ANVIL_HIT, 20, 0);
-
-                // close menu when successfully made choice
-                ice.getWhoClicked().closeInventory();
+            if(ice.getSlot() == 4 && !oldName.equals("§4[Heated] §fSerasyll") &&
+                    !oldName.equals("§4[Heated] §fAdamantium")){
+                newName = newName + "Helmet§0§0";
             }
-            // clicked on slot containing chest plate, give unfin. chest plate.
+            // clicked on slot containing helmet, prepare to give chestplt. with
+            //   hidden meta data (for use in shaping phase).
             //   Can't use Adamantium or Serasyll as they're only for weapons,
-            //   tools.
-            else if(ice.getSlot() == 13 && !item.getItemMeta().
-                    getLocalizedName().contains("Serasyll") &&
-                    !item.getItemMeta().
-                    getLocalizedName().contains("Adamantium")){
-                // remove item from inventory
-                if(item.getAmount() == 1){
-                    ice.getWhoClicked().getInventory().remove(item);
-                }else{
-                    item.setAmount(item.getAmount() - 1);
-                }
-
-                unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Chestplate§0§0");
-                unfinishedItem.setItemMeta(unfinishedMeta);
-                ice.getWhoClicked().getInventory().addItem(unfinishedItem);
-
-                // play anvil sound for successful item creation
-                player.playSound(player.getLocation(),
-                                 Sound.BLOCK_ANVIL_HIT, 20, 0);
-
-                // close menu when successfully made choice
-                ice.getWhoClicked().closeInventory();
+            //   tools
+            else if(ice.getSlot() == 13 &&
+                    !oldName.equals("§4[Heated] §fSerasyll") &&
+                    !oldName.equals("§4[Heated] §fAdamantium")){
+                newName = newName + "Chestplate§0§0";
             }
-            // clicked on slot with leggings, give unfin. leggings. Can't use
-            //   Adamantium or Serasyll as they're only for weapons, tools
-            else if(ice.getSlot() == 22 && !item.getItemMeta().
-                    getLocalizedName().contains("Serasyll") &&
-                    !item.getItemMeta().
-                    getLocalizedName().contains("Adamantium")){
-                // remove item from inventory
-                if(item.getAmount() == 1){
-                    ice.getWhoClicked().getInventory().remove(item);
-                }else{
-                    item.setAmount(item.getAmount() - 1);
-                }
-
-                unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Leggings§0§0");
-                unfinishedItem.setItemMeta(unfinishedMeta);
-                ice.getWhoClicked().getInventory().addItem(unfinishedItem);
-
-                // remove item from inventory
-                if(item.getAmount() == 1){
-                    ice.getWhoClicked().getInventory().remove(item);
-                }else{
-                    item.setAmount(item.getAmount() - 1);
-                }
-
-                // play anvil sound for successful item creation
-                player.playSound(player.getLocation(),
-                                 Sound.BLOCK_ANVIL_HIT, 20, 0);
-
-                // close menu when successfully made choice
-                ice.getWhoClicked().closeInventory();
+            // clicked on slot containing helmet, prepare to give leggings with
+            //   hidden meta data (for use in shaping phase).
+            //   Can't use Adamantium or Serasyll as they're only for weapons,
+            //   tools
+            else if(ice.getSlot() == 22 &&
+                    !oldName.equals("§4[Heated] §fSerasyll") &&
+                    !oldName.equals("§4[Heated] §fAdamantium")){
+                newName = newName + "Leggings§0§0";
             }
-            // clicked on slot with tools, give unfin. tools. Can't use
-            //   Mythril or Andaryll as they're only for armor
-            else if(ice.getSlot() == 11 && !item.getItemMeta().
-                    getLocalizedName().contains("Andaryll") &&
-                    !item.getItemMeta().getLocalizedName().contains("Mythril")){
+            // clicked on slot containing sword, prepare to give sword with
+            //   hidden meta data (for use in shaping phase).
+            //   Can't use Andaryll or Mythril as they're only for armor
+            else if(ice.getSlot() == 11 &&
+                    !oldName.equals("§4[Heated] §fAndaryll") &&
+                    !oldName.equals("§4[Heated] §fMythril")){
                 // remove item from inventory
-                if(item.getAmount() == 1){
-                    ice.getWhoClicked().getInventory().remove(item);
-                }else{
-                    item.setAmount(item.getAmount() - 1);
-                }
-
-                unfinishedMeta.setLocalizedName(unfinishedMeta.
-                    getLocalizedName() + "Sword§0§0");
-                unfinishedItem.setItemMeta(unfinishedMeta);
-                ice.getWhoClicked().getInventory().addItem(unfinishedItem);
-
-                // play anvil sound for successful item creation
-                player.playSound(player.getLocation(),
-                                 Sound.BLOCK_ANVIL_HIT, 20, 0);
-
-                // close menu when successfully made choice
-                ice.getWhoClicked().closeInventory();
+                newName = newName + "Sword§0§0";
+            }else{
+                return true;
             }
+
+            // remove item from inventory
+            if(item.getAmount() == 1){
+                ice.getWhoClicked().getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
+
+            // play anvil sound for successful item creation
+            player.playSound(player.getLocation(),
+                    Sound.BLOCK_ANVIL_HIT, 20, 0);
+
+            // give new meta data to new item and give to player
+            ItemMeta newMeta = newItem.getItemMeta();
+            newMeta.setLocalizedName(newName);
+            newItem.setItemMeta(newMeta);
+            player.getInventory().addItem(newItem);
+
+            // close menu when successfully made choice
+            ice.getWhoClicked().closeInventory();
         }
 
         return true;
