@@ -140,15 +140,6 @@ public class SwordCreation implements Listener {
                 return true;
             }
 
-            // if it has already been hammered in this iteration, don't let
-            //   player do another skill check
-            if(hiddenMeta.charAt(5) == 'f'){
-                player.sendMessage(ChatColor.WHITE + "The sword is searing hot"
-                        + ". You should try cooling it down.");
-
-                return true;
-            }
-
             // get hidden metadata for updating
             int timesHammered = ((int)hiddenMeta.charAt(1)) - 48;
             int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
@@ -172,6 +163,16 @@ public class SwordCreation implements Listener {
                             hiddenMeta)){
                 amountToPassCheck = 100;
             }else{
+                return true;
+            }
+
+            // if it has already been hammered in this iteration, don't let
+            //   player do another skill check
+            if(hiddenMeta.charAt(5) == 'f'){
+                player.sendMessage(ChatColor.WHITE + "The sword is searing" +
+                " hot and has already been shaped." +
+                ". You should try cooling it down.");
+
                 return true;
             }
 
@@ -252,16 +253,6 @@ public class SwordCreation implements Listener {
                 return true;
             }
 
-            // check to see if has been hammered in this iteration, if not
-            //   don't let player cool it and tell them what to do
-            if(hiddenMeta.charAt(5) == 't'){
-                player.sendMessage(ChatColor.WHITE + "The sword is hot and " +
-                    " ready to be shaped. You should try hammering it on an " +
-                        "anvil.");
-
-                return true;
-            }
-
             // get hidden metadata for checking/updating
             int timesHammered = ((int)hiddenMeta.charAt(1)) - 48;
             int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
@@ -317,6 +308,22 @@ public class SwordCreation implements Listener {
                 newItem = new ItemStack(oreType);
             }
 
+            // check to see if has been hammered in this iteration, if not
+            //   don't let player cool it and tell them what to do
+            if(hiddenMeta.charAt(5) == 't'){
+                if(itemName.contains("§4[Heated]")){
+                    player.sendMessage("The sword is hot and " +
+                    " ready to be shaped. You should try hammering it on an " +
+                    "anvil.");
+                }else{
+                    player.sendMessage("The sword is ready to be shaped, but" +
+                    " it is cool. You should try " +
+                    "heating then hammering it on an anvil.");
+                }
+
+                return true;
+            }
+
             // remove item from inventory
             if(item.getAmount() == 1){
                 player.getInventory().remove(item);
@@ -356,6 +363,30 @@ public class SwordCreation implements Listener {
 
     @EventHandler
     public boolean onSwordGrinding(PlayerInteractEvent pie){
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
+        Player player = pie.getPlayer();
+        ItemStack item = pie.getItem();
+
+        if(pie.getMaterial() == Material.HARD_CLAY &&
+           pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
+           pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
+            String itemName = item.getItemMeta().getLocalizedName();
+
+            // get hidden meta info for item
+            String hiddenMeta;
+            if(itemName.length() >= 4)
+                hiddenMeta = itemName.substring(itemName.length() - 4);
+            else
+                return true;
+
+            int timesGrinded = hiddenMeta.charAt(1);
+            int qualityPoints = hiddenMeta.charAt(3);
+        }
+
         return true;
     }
 }
