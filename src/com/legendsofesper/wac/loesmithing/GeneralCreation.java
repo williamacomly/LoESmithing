@@ -13,6 +13,7 @@ package com.legendsofesper.wac.loesmithing;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,6 +52,8 @@ public class GeneralCreation implements Listener{
         if(pie.getClickedBlock() == null){
             return true;
         }
+
+        // TODO: make sure not to cancel events using special materials
 
         // if player interacted with anvil, close anvil inventory
         if(pie.getClickedBlock().getType() == Material.ANVIL &&
@@ -127,15 +130,10 @@ public class GeneralCreation implements Listener{
             }
 
             // remove old item from inventory
-            if(item.getAmount() == 1){
-                player.getInventory().remove(item);
-            }else{
-                item.setAmount(item.getAmount() - 1);
-            }
+            item.setAmount(item.getAmount() - 1);
 
-            // add item to inventory and play sound clip to signify
+            // play sound clip to signify
             //   completion
-            player.getInventory().addItem(newMaterial);
             player.playSound(player.getLocation(),
             Sound.BLOCK_LAVA_POP, 20, 0);
 
@@ -152,6 +150,8 @@ public class GeneralCreation implements Listener{
                         ItemMeta newMeta = item.getItemMeta();
                         newMeta.setLocalizedName(newName);
                         newMaterial.setItemMeta(newMeta);
+
+                        player.getInventory().addItem(newMaterial);
                     }
                 }, 40);
         }
@@ -381,11 +381,7 @@ public class GeneralCreation implements Listener{
             }
 
             // remove item from inventory
-            if(item.getAmount() == 1){
-                ice.getWhoClicked().getInventory().remove(item);
-            }else{
-                item.setAmount(item.getAmount() - 1);
-            }
+            item.setAmount(item.getAmount() - 1);
 
             // play anvil sound for successful item creation
             player.playSound(player.getLocation(),

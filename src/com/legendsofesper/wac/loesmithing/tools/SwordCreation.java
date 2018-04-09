@@ -10,8 +10,8 @@
 
 package com.legendsofesper.wac.loesmithing.tools;
 
+import com.legendsofesper.wac.loesmithing.MaterialConstants;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -23,7 +23,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Cauldron;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Random;
@@ -73,7 +72,7 @@ public class SwordCreation implements Listener {
                         hiddenMeta);
             }
             // on serasyll sword
-            else if(item.getType() == Material.REDSTONE &&
+            else if(item.getType() == Material.GLOWSTONE_DUST &&
                     itemName.equals("Unfinished Serasyll Sword" + hiddenMeta)){
                 newMeta.setLocalizedName("§4[Heated] §fUnfinished Serasyll" +
                         " Sword" + hiddenMeta);
@@ -132,6 +131,9 @@ public class SwordCreation implements Listener {
                 Material.ANVIL && pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
 
+            // close opened anvil inventory
+            player.getOpenInventory().close();
+
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
             if(itemName.length() >= 6){
@@ -144,24 +146,31 @@ public class SwordCreation implements Listener {
             int timesHammered = ((int)hiddenMeta.charAt(1)) - 48;
             int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
 
+            ItemStack itemToTake;
             int amountToPassCheck;
             // for iron sword
             if(item.getType() == Material.IRON_INGOT &&
                     itemName.equals("§4[Heated] §fUnfinished Iron Sword" +
                             hiddenMeta)){
                 amountToPassCheck = 40;
+
+                itemToTake = MaterialConstants.getIRON_INGOT();
             }
             // on serasyll sword
-            else if(item.getType() == Material.REDSTONE &&
+            else if(item.getType() == Material.GLOWSTONE_DUST &&
                     itemName.equals("§4[Heated] §fUnfinished Serasyll Sword" +
                             hiddenMeta)){
                 amountToPassCheck = 70;
+
+                itemToTake = MaterialConstants.getSERASYLL();
             }
             // on adamantium sword
             else if(item.getType() == Material.DIAMOND &&
                     itemName.equals("§4[Heated] §fUnfinished Adamantium Sword" +
                             hiddenMeta)){
                 amountToPassCheck = 100;
+
+                itemToTake = MaterialConstants.getADAMANTIUM();
             }else{
                 return true;
             }
@@ -169,7 +178,7 @@ public class SwordCreation implements Listener {
             // if it has already been hammered in this iteration, don't let
             //   player do another skill check
             if(hiddenMeta.charAt(5) == 'f'){
-                player.sendMessage(ChatColor.WHITE + "The sword is searing" +
+                player.sendMessage("The sword is searing" +
                 " hot and has already been shaped." +
                 ". You should try cooling it down.");
 
@@ -183,6 +192,15 @@ public class SwordCreation implements Listener {
             // update quality points based on skill check pass/fail
             qualityPoints = (checkValue >= amountToPassCheck) ?
                     qualityPoints++ : qualityPoints--;
+
+            // check to see if player has at least one other material in
+            //   inventory to add to sword, if not do not complete step
+            if(player.getInventory().
+                containsAtLeast(itemToTake, 1)){
+                player.sendMessage("hey this works");
+            }else{
+                return true;
+            }
 
             // remove item from inventory
             if(item.getAmount() == 1){
@@ -270,13 +288,13 @@ public class SwordCreation implements Listener {
                 oreType = Material.IRON_INGOT;
             }
             // on serasyll Sword
-            else if(item.getType() == Material.REDSTONE &&
+            else if(item.getType() == Material.GLOWSTONE_DUST &&
                     itemName.equals("§4[Heated] §fUnfinished Serasyll Sword" +
                             hiddenMeta)){
                 newName = "Serasyll Sword";
 
                 swordType = Material.GOLD_SWORD;
-                oreType = Material.REDSTONE;
+                oreType = Material.GLOWSTONE_DUST;
             }
             // on adamantium Sword
             else if(item.getType() == Material.DIAMOND &&
