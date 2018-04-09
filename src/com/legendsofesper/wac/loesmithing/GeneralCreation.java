@@ -24,17 +24,21 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Event handlers and helper moethods that contribute to starting the smithing
  * process for all tools/arms/armor covered by plugin
  *
- * TODO: add new hidden meta data for t/f needs to be hammer or cooled
- * (needs to make sure can't be conintually hammered for more skills)
- *
  * @version 4-Apr-2018
  */
 public class GeneralCreation implements Listener{
+    private JavaPlugin plugin;
+
+    public GeneralCreation(JavaPlugin plugin){
+        this.plugin = plugin;
+    }
+
     /**
      * Make sure players cannot access basic MC anvil inventory
      *
@@ -129,16 +133,27 @@ public class GeneralCreation implements Listener{
                 item.setAmount(item.getAmount() - 1);
             }
 
-            // set new status name in new meta data
-            ItemMeta newMeta = item.getItemMeta();
-            newMeta.setLocalizedName(newName);
-            newMaterial.setItemMeta(newMeta);
-
             // add item to inventory and play sound clip to signify
             //   completion
             player.getInventory().addItem(newMaterial);
             player.playSound(player.getLocation(),
-                    Sound.BLOCK_LAVA_POP, 20, 0);
+            Sound.BLOCK_LAVA_POP, 20, 0);
+
+            player.sendMessage("You rest the " + oldName + " in the burning" +
+                " coals.");
+
+            // give this step a delay of 40 ticks or 2 seconds before player
+            //   gets completed item
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // set new status name in new meta data
+                        ItemMeta newMeta = item.getItemMeta();
+                        newMeta.setLocalizedName(newName);
+                        newMaterial.setItemMeta(newMeta);
+                    }
+                }, 40);
         }
 
         return true;
@@ -376,14 +391,25 @@ public class GeneralCreation implements Listener{
             player.playSound(player.getLocation(),
                     Sound.BLOCK_ANVIL_HIT, 20, 0);
 
-            // give new meta data to new item and give to player
-            ItemMeta newMeta = newItem.getItemMeta();
-            newMeta.setLocalizedName(newName);
-            newItem.setItemMeta(newMeta);
-            player.getInventory().addItem(newItem);
-
             // close menu when successfully made choice
             ice.getWhoClicked().closeInventory();
+
+            player.sendMessage("You begin to hammer the material into shape.");
+
+            // create delay of 40 ticks or 2 seconds for player to receive
+            //   completed item
+            final String finalNewName = newName;
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // give new meta data to new item and give to player
+                        ItemMeta newMeta = newItem.getItemMeta();
+                        newMeta.setLocalizedName(finalNewName);
+                        newItem.setItemMeta(newMeta);
+                        player.getInventory().addItem(newItem);
+                    }
+                }, 40);
         }
 
         return true;

@@ -25,10 +25,10 @@ public class GiveOre implements CommandExecutor{
                 ItemStack newItem;
                 String itemName;
                 if(args[0].equals("andaryll")){
-                    newItem = new ItemStack(Material.NETHER_BRICK_ITEM);
+                    newItem = new ItemStack(Material.GOLD_INGOT);
                     itemName = "Andaryll";
                 }else if(args[0].equals("serasyll")){
-                    newItem = new ItemStack(Material.REDSTONE);
+                    newItem = new ItemStack(Material.GLOWSTONE_DUST);
                     itemName = "Serasyll";
                 }else if(args[0].equals("mythril")){
                     newItem = new ItemStack(Material.EMERALD);

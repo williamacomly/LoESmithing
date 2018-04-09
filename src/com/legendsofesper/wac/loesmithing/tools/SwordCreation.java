@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Cauldron;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Random;
 
@@ -36,9 +37,9 @@ import java.util.Random;
  * @version 5-Apr-2018
  */
 public class SwordCreation implements Listener {
-    private Plugin plugin;
+    private JavaPlugin plugin;
 
-    public SwordCreation(Plugin plugin){
+    public SwordCreation(JavaPlugin plugin){
         this.plugin = plugin;
     }
 
@@ -110,26 +111,6 @@ public class SwordCreation implements Listener {
                     ItemStack newItem = new ItemStack(item.getType());
                     newItem.setItemMeta(newMeta);
                     player.getInventory().addItem(newItem);
-
-                    // give it 2 seconds for player to recieve item, then item cools
-                    //   in 2400 ticks or 2 minutes
-                    Bukkit.getServer().getScheduler().
-                                scheduleSyncDelayedTask(plugin, new Runnable() {
-                                @Override
-                                public void run() {
-                                    if(newItem != null){
-                                        if(newItem.hasItemMeta()){
-                                            if(newItem.getItemMeta().getLocalizedName().contains("§4[Heated]")){
-                                                player.sendMessage("got here");
-                                                player.getInventory().remove(newItem);
-//                                                ItemMeta brandNewMeta = item.getItemMeta();
-//                                                brandNewMeta.setLocalizedName(brandNewMeta.getLocalizedName().substring(12));
-//                                                newItem.setItemMeta(brandNewMeta);
-                                            }
-                                        }
-                                    }
-                                }
-                            }, 40);
                 }
             }, 40);
         }
@@ -218,12 +199,24 @@ public class SwordCreation implements Listener {
                     itemName.length() - 6) + "§" + timesHammered + "§" +
                     qualityPoints + "§f";
 
-            // set new item meta with updated hidden meta and give to player
-            ItemStack newItem = new ItemStack(item.getType());
-            ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(newItemName);
-            newItem.setItemMeta(meta);
-            player.getInventory().addItem(newItem);
+            player.sendMessage("You begin to hammer the unfinished sword into" +
+                " shape.");
+
+            // create delay of 40 ticks or 2 seconds before player recieves
+            //   completed item
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // set new item meta with updated hidden meta and give
+                        //   to player
+                        ItemStack newItem = new ItemStack(item.getType());
+                        ItemMeta meta = item.getItemMeta();
+                        meta.setLocalizedName(newItemName);
+                        newItem.setItemMeta(meta);
+                        player.getInventory().addItem(newItem);
+                    }
+                }, 40);
         }
 
         return true;
@@ -334,14 +327,28 @@ public class SwordCreation implements Listener {
             player.playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH,
                     20, 0);
 
-            // create new item with appropriate meta and give to player
-            String metaName = state + " " + newName + hiddenMeta;
-            ItemMeta newMeta = newItem.getItemMeta();
-            newMeta.setLocalizedName(metaName);
+            player.sendMessage("You put the unfinished sword into the water," +
+                " cooling it down.");
 
-            newItem.setItemMeta(newMeta);
+            // give a delay of 40 ticks or 2 seconds before player get completed
+            //   item
+            final String finalHiddenMeta = hiddenMeta;
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // create new item with appropriate meta and give to
+                        //   player
+                        String metaName = state + " " + newName +
+                            finalHiddenMeta;
+                        ItemMeta newMeta = newItem.getItemMeta();
+                        newMeta.setLocalizedName(metaName);
 
-            player.getInventory().addItem(newItem);
+                        newItem.setItemMeta(newMeta);
+
+                        player.getInventory().addItem(newItem);
+                    }
+                }, 40);
         }
 
         return true;
