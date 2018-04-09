@@ -10,6 +10,7 @@
 
 package com.legendsofesper.wac.loesmithing.tools;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Cauldron;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Random;
 
@@ -30,12 +32,16 @@ import java.util.Random;
  *
  * TODO: update skill check to work with server skills plugin
  * TODO: finish grinding phase
- * TODO: change hidden meta data checks to add one more field
- * (for checking if needs to be hammered or cooled so no infinite skill checks)
  *
  * @version 5-Apr-2018
  */
 public class SwordCreation implements Listener {
+    private Plugin plugin;
+
+    public SwordCreation(Plugin plugin){
+        this.plugin = plugin;
+    }
+
     // event handler for heating unfinished swords at magma block
     @EventHandler
     public boolean onUnfinishedSwordHeat(PlayerInteractEvent pie){
@@ -92,10 +98,40 @@ public class SwordCreation implements Listener {
             player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP,
                     20, 0);
 
-            // set new heated item's name and give to player
-            ItemStack newItem = new ItemStack(item.getType());
-            newItem.setItemMeta(newMeta);
-            player.getInventory().addItem(newItem);
+            player.sendMessage("You rest the unfinished sword in the burning" +
+                    " coals");
+
+            // create delay of 40 ticks or 2 seconds before giving ore back
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                    new Runnable() {
+                @Override
+                public void run() {
+                    // set new heated item's name and give to player
+                    ItemStack newItem = new ItemStack(item.getType());
+                    newItem.setItemMeta(newMeta);
+                    player.getInventory().addItem(newItem);
+
+                    // give it 2 seconds for player to recieve item, then item cools
+                    //   in 2400 ticks or 2 minutes
+                    Bukkit.getServer().getScheduler().
+                                scheduleSyncDelayedTask(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(newItem != null){
+                                        if(newItem.hasItemMeta()){
+                                            if(newItem.getItemMeta().getLocalizedName().contains("§4[Heated]")){
+                                                player.sendMessage("got here");
+                                                player.getInventory().remove(newItem);
+//                                                ItemMeta brandNewMeta = item.getItemMeta();
+//                                                brandNewMeta.setLocalizedName(brandNewMeta.getLocalizedName().substring(12));
+//                                                newItem.setItemMeta(brandNewMeta);
+                                            }
+                                        }
+                                    }
+                                }
+                            }, 40);
+                }
+            }, 40);
         }
 
         return true;
@@ -114,8 +150,6 @@ public class SwordCreation implements Listener {
         if(player.isSneaking() && pie.getClickedBlock().getType() ==
                 Material.ANVIL && pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
-            // close auto anvil inventory
-            player.getOpenInventory().close();
 
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
@@ -128,8 +162,8 @@ public class SwordCreation implements Listener {
             // if it has already been hammered in this iteration, don't let
             //   player do another skill check
             if(hiddenMeta.charAt(5) == 'f'){
-                player.sendMessage(ChatColor.GOLD + "The sword is searing hot" +
-                        ". It needs to be cooled.");
+                player.sendMessage(ChatColor.WHITE + "The sword is searing hot"
+                        + ". You should try cooling it down.");
 
                 return true;
             }
@@ -228,8 +262,9 @@ public class SwordCreation implements Listener {
             // check to see if has been hammered in this iteration, if not
             //   don't let player cool it and tell them what to do
             if(hiddenMeta.charAt(5) == 't'){
-                player.sendMessage(ChatColor.GOLD + "The sword is hot and " +
-                    " ready to be shaped. Give it a good whack on the anvil.");
+                player.sendMessage(ChatColor.WHITE + "The sword is hot and " +
+                    " ready to be shaped. You should try hammering it on an " +
+                        "anvil.");
 
                 return true;
             }
@@ -309,6 +344,11 @@ public class SwordCreation implements Listener {
             player.getInventory().addItem(newItem);
         }
 
+        return true;
+    }
+
+    @EventHandler
+    public boolean onSwordGrinding(PlayerInteractEvent pie){
         return true;
     }
 }

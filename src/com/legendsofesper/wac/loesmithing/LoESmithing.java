@@ -43,7 +43,7 @@ public class LoESmithing extends JavaPlugin {
     }
 
     private void registerEvents(){
-        pluginManager.registerEvents(new SwordCreation(), this);
+        pluginManager.registerEvents(new SwordCreation(this), this);
         pluginManager.registerEvents(new GeneralCreation(), this);
     }
 }

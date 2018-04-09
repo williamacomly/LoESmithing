@@ -36,6 +36,29 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class GeneralCreation implements Listener{
     /**
+     * Make sure players cannot access basic MC anvil inventory
+     *
+     * @param pie event passes by listener to handler
+     * @return    boolean whether or not handler succeeded
+     */
+    @EventHandler
+    public boolean onAnvilInteract(PlayerInteractEvent pie){
+        // make sure trying ot not handle invalid event with stationary water
+        if(pie.getClickedBlock() == null){
+            return true;
+        }
+
+        // if player interacted with anvil, close anvil inventory
+        if(pie.getClickedBlock().getType() == Material.ANVIL &&
+                pie.getHand() == EquipmentSlot.HAND &&
+                pie.getAction() == Action.RIGHT_CLICK_BLOCK){
+            pie.setCancelled(true);
+        }
+
+        return true;
+    }
+
+    /**
      * Implementation for Ore Heating EventHandler which starts all creation.
      * A player takes a normal Ore item and holds shift and right clicks on
      * a magma block to "heat" it. The condition is shown on the item. The meta
@@ -148,9 +171,6 @@ public class GeneralCreation implements Listener{
             // menu for players to choose what to make heated ore into
             Inventory menu = Bukkit.createInventory(player, InventoryType.CHEST,
                                                     "Choose what to create");
-
-            // close auto anvil inventory
-            player.getOpenInventory().close();
 
             // for iron items
             if(item.getType() == Material.IRON_INGOT &&
