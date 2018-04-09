@@ -303,13 +303,17 @@ public class GeneralCreation implements Listener{
                 return true;
             }
 
+            // for use with shaping - times hammered, quality points, t/f needs
+            //   to be hammered
+            String hiddenMeta = "§0§0§t";
+
             // clicked on slot containing helmet, prepare ot give helmet with
             //   hidden meta data (for use in shaping phase).
             //   Can't use Adamantium or Serasyll as they're only for weapons,
             //   tools
             if(ice.getSlot() == 4 && !oldName.equals("§4[Heated] §fSerasyll") &&
                     !oldName.equals("§4[Heated] §fAdamantium")){
-                newName = newName + "Helmet§0§0";
+                newName = newName + "Helmet" + hiddenMeta;
             }
             // clicked on slot containing helmet, prepare to give chestplt. with
             //   hidden meta data (for use in shaping phase).
@@ -318,7 +322,7 @@ public class GeneralCreation implements Listener{
             else if(ice.getSlot() == 13 &&
                     !oldName.equals("§4[Heated] §fSerasyll") &&
                     !oldName.equals("§4[Heated] §fAdamantium")){
-                newName = newName + "Chestplate§0§0";
+                newName = newName + "Chestplate" + hiddenMeta;
             }
             // clicked on slot containing helmet, prepare to give leggings with
             //   hidden meta data (for use in shaping phase).
@@ -327,7 +331,7 @@ public class GeneralCreation implements Listener{
             else if(ice.getSlot() == 22 &&
                     !oldName.equals("§4[Heated] §fSerasyll") &&
                     !oldName.equals("§4[Heated] §fAdamantium")){
-                newName = newName + "Leggings§0§0";
+                newName = newName + "Leggings" + hiddenMeta;
             }
             // clicked on slot containing sword, prepare to give sword with
             //   hidden meta data (for use in shaping phase).
@@ -336,7 +340,7 @@ public class GeneralCreation implements Listener{
                     !oldName.equals("§4[Heated] §fAndaryll") &&
                     !oldName.equals("§4[Heated] §fMythril")){
                 // remove item from inventory
-                newName = newName + "Sword§0§0";
+                newName = newName + "Sword" + hiddenMeta;
             }else{
                 return true;
             }

@@ -10,6 +10,7 @@
 
 package com.legendsofesper.wac.loesmithing.tools;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -51,8 +52,8 @@ public class SwordCreation implements Listener {
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
-            if(itemName.length() >= 4){
-                hiddenMeta = itemName.substring(itemName.length() - 4);
+            if(itemName.length() >= 6){
+                hiddenMeta = itemName.substring(itemName.length() - 6);
             }else{
                 return true;
             }
@@ -118,9 +119,18 @@ public class SwordCreation implements Listener {
 
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
-            if(itemName.length() >= 4){
-                hiddenMeta = itemName.substring(itemName.length() - 4);
+            if(itemName.length() >= 6){
+                hiddenMeta = itemName.substring(itemName.length() - 6);
             }else{
+                return true;
+            }
+
+            // if it has already been hammered in this iteration, don't let
+            //   player do another skill check
+            if(hiddenMeta.charAt(5) == 'f'){
+                player.sendMessage(ChatColor.GOLD + "The sword is searing hot" +
+                        ". It needs to be cooled.");
+
                 return true;
             }
 
@@ -171,8 +181,8 @@ public class SwordCreation implements Listener {
 
             timesHammered++;
             String newItemName = itemName.substring(0,
-                    itemName.length() - 4) + "§" + timesHammered + "§" +
-                    qualityPoints;
+                    itemName.length() - 6) + "§" + timesHammered + "§" +
+                    qualityPoints + "§f";
 
             // set new item meta with updated hidden meta and give to player
             ItemStack newItem = new ItemStack(item.getType());
@@ -209,9 +219,18 @@ public class SwordCreation implements Listener {
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
             // see if can get full hidden meta data, not correct item if not
-            if(itemName.length() >= 4){
-                hiddenMeta = itemName.substring(itemName.length() - 4);
+            if(itemName.length() >= 6){
+                hiddenMeta = itemName.substring(itemName.length() - 6);
             }else{
+                return true;
+            }
+
+            // check to see if has been hammered in this iteration, if not
+            //   don't let player cool it and tell them what to do
+            if(hiddenMeta.charAt(5) == 't'){
+                player.sendMessage(ChatColor.GOLD + "The sword is hot and " +
+                    " ready to be shaped. Give it a good whack on the anvil.");
+
                 return true;
             }
 
@@ -265,7 +284,7 @@ public class SwordCreation implements Listener {
             // staying in shaping phase
             else{
                 state = "Unfinished";
-                hiddenMeta = "§" + timesHammered + "§" + qualityPoints;
+                hiddenMeta = "§" + timesHammered + "§" + qualityPoints + "§t";
 
                 newItem = new ItemStack(oreType);
             }
