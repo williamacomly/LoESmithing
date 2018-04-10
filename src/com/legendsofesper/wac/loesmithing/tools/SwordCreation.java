@@ -324,7 +324,6 @@ public class SwordCreation implements Listener {
                 return true;
             }
 
-            //
             String state;
             ItemStack newItem;
             // moving onto grinding phase
@@ -416,13 +415,18 @@ public class SwordCreation implements Listener {
                 newName = "Serasyll Sword";
             }else if(item.getType() == Material.DIAMOND_SWORD &&
                     itemName.equals("Unsharpened Adamantium Sword" +
-                    hiddenMeta)){
+                        hiddenMeta)){
                 newItem = new ItemStack(Material.DIAMOND_SWORD);
                 newName = "Adamantium Sword";
             }else{
                 return true;
             }
 
+            if(timesGrinded == 3){
+
+            }else{
+
+            }
 
         }
 
