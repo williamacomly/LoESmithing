@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -31,7 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Event handlers and helper moethods that contribute to starting the smithing
  * process for all tools/arms/armor covered by plugin
  *
- * @version 4-Apr-2018
+ * @version 9-Apr-2018
  */
 public class GeneralCreation implements Listener{
     private JavaPlugin plugin;
@@ -43,23 +44,14 @@ public class GeneralCreation implements Listener{
     /**
      * Make sure players cannot access basic MC anvil inventory
      *
-     * @param pie event passes by listener to handler
+     * @param ioe event passes by listener to handler
      * @return    boolean whether or not handler succeeded
      */
     @EventHandler
-    public boolean onAnvilInteract(PlayerInteractEvent pie){
-        // make sure trying ot not handle invalid event with stationary water
-        if(pie.getClickedBlock() == null){
-            return true;
-        }
-
-        // TODO: make sure not to cancel events using special materials
-
-        // if player interacted with anvil, close anvil inventory
-        if(pie.getClickedBlock().getType() == Material.ANVIL &&
-                pie.getHand() == EquipmentSlot.HAND &&
-                pie.getAction() == Action.RIGHT_CLICK_BLOCK){
-            pie.setCancelled(true);
+    public boolean onAnvilInteract(InventoryOpenEvent ioe){
+        // if opened anvil crafting inventory
+        if(ioe.getInventory().getType() == InventoryType.ANVIL){
+            ioe.setCancelled(true);
         }
 
         return true;
@@ -129,8 +121,12 @@ public class GeneralCreation implements Listener{
                 return true;
             }
 
-            // remove old item from inventory
-            item.setAmount(item.getAmount() - 1);
+            // remove item from inventory
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
 
             // play sound clip to signify
             //   completion
@@ -381,7 +377,11 @@ public class GeneralCreation implements Listener{
             }
 
             // remove item from inventory
-            item.setAmount(item.getAmount() - 1);
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
+            }else{
+                item.setAmount(item.getAmount() - 1);
+            }
 
             // play anvil sound for successful item creation
             player.playSound(player.getLocation(),

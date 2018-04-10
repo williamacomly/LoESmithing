@@ -33,7 +33,7 @@ import java.util.Random;
  * TODO: update skill check to work with server skills plugin
  * TODO: finish grinding phase
  *
- * @version 5-Apr-2018
+ * @version 9-Apr-2018
  */
 public class SwordCreation implements Listener {
     private JavaPlugin plugin;
@@ -99,7 +99,7 @@ public class SwordCreation implements Listener {
                     20, 0);
 
             player.sendMessage("You rest the unfinished sword in the burning" +
-                    " coals");
+                    " coals.");
 
             // create delay of 40 ticks or 2 seconds before giving ore back
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
@@ -130,9 +130,7 @@ public class SwordCreation implements Listener {
         if(player.isSneaking() && pie.getClickedBlock().getType() ==
                 Material.ANVIL && pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
-
-            // close opened anvil inventory
-            player.getOpenInventory().close();
+            pie.setCancelled(true);
 
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
@@ -197,8 +195,10 @@ public class SwordCreation implements Listener {
             //   inventory to add to sword, if not do not complete step
             if(player.getInventory().
                 containsAtLeast(itemToTake, 1)){
-                player.sendMessage("hey this works");
+                player.getInventory().remove(itemToTake);
             }else{
+                player.sendMessage("You need more material to continue to " +
+                    "shape the sword.");
                 return true;
             }
 
@@ -308,6 +308,22 @@ public class SwordCreation implements Listener {
                 return true;
             }
 
+            // check to see if has been hammered in this iteration, if not
+            //   don't let player cool it and tell them what to do
+            if(hiddenMeta.charAt(5) == 't'){
+                if(itemName.contains("§4[Heated]")){
+                    player.sendMessage("The sword is hot and " +
+                            " ready to be shaped. You should try hammering it on an " +
+                            "anvil.");
+                }else{
+                    player.sendMessage("The sword is ready to be shaped, but" +
+                            " it is cool. You should try " +
+                            "heating then hammering it on an anvil.");
+                }
+
+                return true;
+            }
+
             //
             String state;
             ItemStack newItem;
@@ -324,22 +340,6 @@ public class SwordCreation implements Listener {
                 hiddenMeta = "§" + timesHammered + "§" + qualityPoints + "§t";
 
                 newItem = new ItemStack(oreType);
-            }
-
-            // check to see if has been hammered in this iteration, if not
-            //   don't let player cool it and tell them what to do
-            if(hiddenMeta.charAt(5) == 't'){
-                if(itemName.contains("§4[Heated]")){
-                    player.sendMessage("The sword is hot and " +
-                    " ready to be shaped. You should try hammering it on an " +
-                    "anvil.");
-                }else{
-                    player.sendMessage("The sword is ready to be shaped, but" +
-                    " it is cool. You should try " +
-                    "heating then hammering it on an anvil.");
-                }
-
-                return true;
             }
 
             // remove item from inventory
@@ -401,8 +401,29 @@ public class SwordCreation implements Listener {
             else
                 return true;
 
-            int timesGrinded = hiddenMeta.charAt(1);
-            int qualityPoints = hiddenMeta.charAt(3);
+            int timesGrinded = ((int)hiddenMeta.charAt(1)) - 48;
+            int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
+
+            ItemStack newItem;
+            String newName;
+            if(item.getType() == Material.IRON_SWORD &&
+                    itemName.equals("Unsharpened Iron Sword" + hiddenMeta)){
+                newItem = new ItemStack(Material.IRON_SWORD);
+                newName = "Iron Sword";
+            }else if(item.getType() == Material.GOLD_SWORD &&
+                    itemName.equals("Unsharpened Serasyll Sword" + hiddenMeta)){
+                newItem = new ItemStack(Material.GOLD_SWORD);
+                newName = "Serasyll Sword";
+            }else if(item.getType() == Material.DIAMOND_SWORD &&
+                    itemName.equals("Unsharpened Adamantium Sword" +
+                    hiddenMeta)){
+                newItem = new ItemStack(Material.DIAMOND_SWORD);
+                newName = "Adamantium Sword";
+            }else{
+                return true;
+            }
+
+
         }
 
         return true;

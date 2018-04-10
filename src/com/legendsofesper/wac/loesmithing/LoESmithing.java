@@ -20,7 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * disable. Also registers and activates events and commands contained
  * elsewhere.
  *
- * @version 28-Mar-2018
+ * @version 9-Apr-2018
  */
 public class LoESmithing extends JavaPlugin {
     private PluginManager pluginManager;
