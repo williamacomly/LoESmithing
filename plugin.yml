@@ -6,4 +6,4 @@ description: Controls commands, events, and functionality of LoE's unique smithi
 commands:
     giveore:
         description: give special ore of your choice for plugin testing
-        usage: /giveore <ore>
+        usage: /giveore <ore> <amount>
