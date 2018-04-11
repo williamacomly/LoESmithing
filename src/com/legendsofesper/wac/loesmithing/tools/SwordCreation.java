@@ -25,6 +25,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Cauldron;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -189,13 +191,22 @@ public class SwordCreation implements Listener {
                     (3 * smithingLevel);
             // update quality points based on skill check pass/fail
             qualityPoints = (checkValue >= amountToPassCheck) ?
-                    qualityPoints++ : qualityPoints--;
+                    (qualityPoints + 1) : (qualityPoints - 1);
 
             // check to see if player has at least one other material in
             //   inventory to add to sword, if not do not complete step
             if(player.getInventory().
                 containsAtLeast(itemToTake, 1)){
-                player.getInventory().remove(itemToTake);
+                // remove extra material from inventory
+                for(ItemStack takeItem : player.getInventory().getContents()){
+                    if(isSame(takeItem, itemToTake))
+                        if(takeItem.getAmount() == 1){
+                            player.getInventory().remove(takeItem);
+                        }else{
+                            takeItem.
+                                    setAmount(takeItem.getAmount() - 1);
+                        }
+                }
             }else{
                 player.sendMessage("You need more material to continue to " +
                     "shape the sword.");
@@ -313,8 +324,8 @@ public class SwordCreation implements Listener {
             if(hiddenMeta.charAt(5) == 't'){
                 if(itemName.contains("§4[Heated]")){
                     player.sendMessage("The sword is hot and " +
-                            " ready to be shaped. You should try hammering it on an " +
-                            "anvil.");
+                            " ready to be shaped. You should try hammering it" +
+                            " on an anvil.");
                 }else{
                     player.sendMessage("The sword is ready to be shaped, but" +
                             " it is cool. You should try " +
@@ -388,9 +399,10 @@ public class SwordCreation implements Listener {
         Player player = pie.getPlayer();
         ItemStack item = pie.getItem();
 
-        if(pie.getMaterial() == Material.HARD_CLAY &&
+        if(pie.getClickedBlock().getType() == Material.STONE &&
            pie.getAction() == Action.RIGHT_CLICK_BLOCK &&
-           pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
+           pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta() &&
+                player.isSneaking()){
             String itemName = item.getItemMeta().getLocalizedName();
 
             // get hidden meta info for item
@@ -405,31 +417,128 @@ public class SwordCreation implements Listener {
 
             ItemStack newItem;
             String newName;
+            int amountToPassCheck;
+            int maxQuality;
             if(item.getType() == Material.IRON_SWORD &&
                     itemName.equals("Unsharpened Iron Sword" + hiddenMeta)){
                 newItem = new ItemStack(Material.IRON_SWORD);
                 newName = "Iron Sword";
+
+                amountToPassCheck = 40;
+                maxQuality = 4;
             }else if(item.getType() == Material.GOLD_SWORD &&
                     itemName.equals("Unsharpened Serasyll Sword" + hiddenMeta)){
                 newItem = new ItemStack(Material.GOLD_SWORD);
                 newName = "Serasyll Sword";
+
+                amountToPassCheck = 70;
+                maxQuality = 5;
             }else if(item.getType() == Material.DIAMOND_SWORD &&
                     itemName.equals("Unsharpened Adamantium Sword" +
                         hiddenMeta)){
                 newItem = new ItemStack(Material.DIAMOND_SWORD);
                 newName = "Adamantium Sword";
+
+                amountToPassCheck = 100;
+                maxQuality = 6;
             }else{
                 return true;
             }
 
-            if(timesGrinded == 3){
-
+            // remove item from inventory
+            if(item.getAmount() == 1){
+                player.getInventory().remove(item);
             }else{
-
+                item.setAmount(item.getAmount() - 1);
             }
 
+            // play sound for immersion
+            player.playSound(player.getLocation(), Sound.BLOCK_SAND_PLACE,
+                    20, 0);
+
+            // skill check for quality point increase
+            int smithingLevel = 1;
+            int checkValue = ((new Random()).nextInt(100) + 1) +
+                    (3 * smithingLevel);
+            // update quality points based on skill check pass/fail
+            qualityPoints = (checkValue >= amountToPassCheck) ?
+                    (qualityPoints + 1) : qualityPoints;
+
+            // set the name if still needs to be grinded or, if not, give it
+            //   its quality
+            String qualityMeta = "";
+            if(timesGrinded >= 2){
+                if(qualityPoints >= 6 && maxQuality >= 6)
+                    qualityMeta = "§dThis sword is of §6Legendary§d quality.";
+                else if(qualityPoints >= 5 && maxQuality >= 5)
+                    qualityMeta = "§dThis sword is of §5Master§d quality.";
+                else if(qualityPoints >= 4 && maxQuality >= 4)
+                    qualityMeta = "§dThis sword is of §1Expert§d quality.";
+                else if(qualityPoints >= 3)
+                    qualityMeta = "§dThis sword is of §2Moderate§d quality.";
+                else if(qualityPoints >= 2)
+                    qualityMeta = "§dThis sword is of §cFair§d quality.";
+                else if(qualityPoints >= 0)
+                    qualityMeta = "§dThis sword is of §8Poor§d quality.";
+                else {
+                    player.sendMessage("The quality of the sword was too low " +
+                            "and it broke on the grinding wheel. Hone your " +
+                            "skills further.");
+
+                    return true;
+                }
+            }else{
+                newName = "Unsharpened " + newName + "§" + (timesGrinded + 1) +
+                        "§" + qualityPoints;
+            }
+
+            // create finished item and give it necessary name/lore
+            ItemMeta newMeta = newItem.getItemMeta();
+            newMeta.setLocalizedName(newName);
+            if(!qualityMeta.equals("")) {
+                List<String> lore = new ArrayList<>();
+                lore.add(qualityMeta);
+                newMeta.setLore(lore);
+            }
+
+            // give a delay of 40 ticks or 2 seconds before player get completed
+            //   item
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            // create new item with appropriate meta and give to
+                            //   player
+                            newItem.setItemMeta(newMeta);
+
+                            player.getInventory().addItem(newItem);
+                        }
+                    }, 40);
         }
 
         return true;
+    }
+
+    /**
+     * Used in Sword Hammering step to see if current item is the same as an
+     * to be taken from inventory as extra material.
+     *
+     * @param item1 The item to be tested
+     * @param item2 The item to be taken
+     * @return      t/f if the item tested is the same as what needs to be taken
+     */
+    private boolean isSame(ItemStack item1, ItemStack item2){
+        if(item1 != null){
+            if(item1.hasItemMeta()){
+                if(item1.getItemMeta().getLocalizedName() != null){
+                    if(item1.getItemMeta().getLocalizedName().
+                            equals(item2.getItemMeta().getLocalizedName())){
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
