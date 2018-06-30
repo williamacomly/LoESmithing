@@ -33,7 +33,6 @@ import java.util.Random;
  * Implementation for Sword Shaping process event handlers.
  *
  * TODO: update skill check to work with server skills plugin
- * TODO: finish grinding phase
  *
  * @version 9-Apr-2018
  */
@@ -60,8 +59,8 @@ public class SwordCreation implements Listener {
                 pie.getHand() == EquipmentSlot.HAND && item.hasItemMeta()){
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
-            if(itemName.length() >= 6){
-                hiddenMeta = itemName.substring(itemName.length() - 6);
+            if(itemName.length() >= 8){
+                hiddenMeta = itemName.substring(itemName.length() - 8);
             }else{
                 return true;
             }
@@ -136,15 +135,17 @@ public class SwordCreation implements Listener {
 
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
-            if(itemName.length() >= 6){
-                hiddenMeta = itemName.substring(itemName.length() - 6);
+            if(itemName.length() >= 8){
+                hiddenMeta = itemName.substring(itemName.length() - 8);
             }else{
                 return true;
             }
 
             // get hidden metadata for updating
             int timesHammered = ((int)hiddenMeta.charAt(1)) - 48;
-            int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
+            int qualityPoints = ((int)hiddenMeta.charAt(5)) - 48;
+            if(hiddenMeta.charAt(3) == 'f')
+                qualityPoints *= -1;
 
             ItemStack itemToTake;
             int amountToPassCheck;
@@ -177,10 +178,10 @@ public class SwordCreation implements Listener {
 
             // if it has already been hammered in this iteration, don't let
             //   player do another skill check
-            if(hiddenMeta.charAt(5) == 'f'){
+            if(hiddenMeta.charAt(7) == 'f'){
                 player.sendMessage("The sword is searing" +
                 " hot and has already been shaped." +
-                ". You should try cooling it down.");
+                " You should try cooling it down.");
 
                 return true;
             }
@@ -192,6 +193,13 @@ public class SwordCreation implements Listener {
             // update quality points based on skill check pass/fail
             qualityPoints = (checkValue >= amountToPassCheck) ?
                     (qualityPoints + 1) : (qualityPoints - 1);
+            char sign;
+            if(qualityPoints < 0){
+                sign = 'f';
+                qualityPoints *= -1;
+            }
+            else
+                sign = 't';
 
             // check to see if player has at least one other material in
             //   inventory to add to sword, if not do not complete step
@@ -226,8 +234,8 @@ public class SwordCreation implements Listener {
 
             timesHammered++;
             String newItemName = itemName.substring(0,
-                    itemName.length() - 6) + "§" + timesHammered + "§" +
-                    qualityPoints + "§f";
+                    itemName.length() - 8) + "§" + timesHammered +
+                    "§" + sign + "§" + qualityPoints + "§f";
 
             player.sendMessage("You begin to hammer the unfinished sword into" +
                 " shape.");
@@ -276,15 +284,17 @@ public class SwordCreation implements Listener {
             String itemName = item.getItemMeta().getLocalizedName();
             String hiddenMeta;
             // see if can get full hidden meta data, not correct item if not
-            if(itemName.length() >= 6){
-                hiddenMeta = itemName.substring(itemName.length() - 6);
+            if(itemName.length() >= 8){
+                hiddenMeta = itemName.substring(itemName.length() - 8);
             }else{
                 return true;
             }
 
             // get hidden metadata for checking/updating
             int timesHammered = ((int)hiddenMeta.charAt(1)) - 48;
-            int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
+            int qualityPoints = ((int)hiddenMeta.charAt(5)) - 48;
+            if(hiddenMeta.charAt(3) == 'f')
+                qualityPoints *= -1;
 
             String newName;
             Material swordType;
@@ -321,7 +331,7 @@ public class SwordCreation implements Listener {
 
             // check to see if has been hammered in this iteration, if not
             //   don't let player cool it and tell them what to do
-            if(hiddenMeta.charAt(5) == 't'){
+            if(hiddenMeta.charAt(7) == 't'){
                 if(itemName.contains("§4[Heated]")){
                     player.sendMessage("The sword is hot and " +
                             " ready to be shaped. You should try hammering it" +
@@ -335,19 +345,27 @@ public class SwordCreation implements Listener {
                 return true;
             }
 
+            // handle different if negative quality points
+            char sign = (qualityPoints < 0)?'f':'t';
+            if(sign == 'f') {
+                qualityPoints *= -1;
+            }
+
             String state;
             ItemStack newItem;
             // moving onto grinding phase
             if(timesHammered >= 3){
                 state = "Unsharpened";
-                hiddenMeta = "§0§" + qualityPoints;
+
+                hiddenMeta = "§0§" + sign + "§" + qualityPoints;
 
                 newItem = new ItemStack(swordType);
             }
             // staying in shaping phase
             else{
                 state = "Unfinished";
-                hiddenMeta = "§" + timesHammered + "§" + qualityPoints + "§t";
+                hiddenMeta = "§" + timesHammered + "§" + sign +
+                        "§" +qualityPoints + "§t";
 
                 newItem = new ItemStack(oreType);
             }
@@ -407,13 +425,15 @@ public class SwordCreation implements Listener {
 
             // get hidden meta info for item
             String hiddenMeta;
-            if(itemName.length() >= 4)
-                hiddenMeta = itemName.substring(itemName.length() - 4);
+            if(itemName.length() >= 6)
+                hiddenMeta = itemName.substring(itemName.length() - 6);
             else
                 return true;
 
             int timesGrinded = ((int)hiddenMeta.charAt(1)) - 48;
-            int qualityPoints = ((int)hiddenMeta.charAt(3)) - 48;
+            int qualityPoints = ((int)hiddenMeta.charAt(5)) - 48;
+            if(hiddenMeta.charAt(3) == 'f')
+                qualityPoints *= -1;
 
             ItemStack newItem;
             String newName;
@@ -464,6 +484,12 @@ public class SwordCreation implements Listener {
             qualityPoints = (checkValue >= amountToPassCheck) ?
                     (qualityPoints + 1) : qualityPoints;
 
+            // handle different if negative quality points
+            char sign = (qualityPoints < 0)?'f':'t';
+            if(sign == 'f') {
+                qualityPoints *= -1;
+            }
+
             // set the name if still needs to be grinded or, if not, give it
             //   its quality
             String qualityMeta = "";
@@ -489,7 +515,7 @@ public class SwordCreation implements Listener {
                 }
             }else{
                 newName = "Unsharpened " + newName + "§" + (timesGrinded + 1) +
-                        "§" + qualityPoints;
+                        "§" + sign + "§" + qualityPoints;
             }
 
             // create finished item and give it necessary name/lore

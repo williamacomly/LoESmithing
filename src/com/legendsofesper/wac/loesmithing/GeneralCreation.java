@@ -18,10 +18,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -29,8 +28,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Event handlers and helper moethods that contribute to starting the smithing
+ * Event handlers and helper methods that contribute to starting the smithing
  * process for all tools/arms/armor covered by plugin
+ *
+ * TODO: make sure that players can't take from menu if they auto-move by sneak
  *
  * @version 9-Apr-2018
  */
@@ -189,17 +190,26 @@ public class GeneralCreation implements Listener{
                equals("§4[Heated] §fIron Ingot")){
                 //create Iron helmet for use in menu and set position
                 ItemStack helmet = new ItemStack(Material.IRON_HELMET);
+                ItemMeta helmetMeta = helmet.getItemMeta();
+                helmetMeta.setLocalizedName("Iron Helmet§!");
+                helmet.setItemMeta(helmetMeta);
                 menu.setItem(4, helmet);
                 // create Iron chest plate and set position in menu
                 ItemStack chestPlate = new ItemStack(Material.IRON_CHESTPLATE);
+                ItemMeta chestPlateMeta = chestPlate.getItemMeta();
+                chestPlateMeta.setLocalizedName("Iron Chestplate§!");
+                chestPlate.setItemMeta(chestPlateMeta);
                 menu.setItem(13, chestPlate);
                 // create Iron legging and set position in menu
                 ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
+                ItemMeta leggingsMeta = leggings.getItemMeta();
+                leggingsMeta.setLocalizedName("Iron Leggings§!");
+                leggings.setItemMeta(leggingsMeta);
                 menu.setItem(22, leggings);
                 // create iron tools and set position in menu
                 ItemStack sword = new ItemStack(Material.IRON_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
-                swordMeta.setLocalizedName("Iron Sword");
+                swordMeta.setLocalizedName("Iron Sword§!");
                 sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
 
@@ -213,7 +223,7 @@ public class GeneralCreation implements Listener{
                 // create Serasyll sword and set position in menu
                 ItemStack sword = new ItemStack(Material.GOLD_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
-                swordMeta.setLocalizedName("Serasyll Sword");
+                swordMeta.setLocalizedName("Serasyll Sword§!");
                 sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
             }
@@ -224,19 +234,19 @@ public class GeneralCreation implements Listener{
                 //create Andaryll helmet for use in menu and set position
                 ItemStack helmet = new ItemStack(Material.GOLD_HELMET);
                 ItemMeta helmetMeta = helmet.getItemMeta();
-                helmetMeta.setLocalizedName("Andaryll Helmet");
+                helmetMeta.setLocalizedName("Andaryll Helmet§!");
                 helmet.setItemMeta(helmetMeta);
                 menu.setItem(4, helmet);
                 // create Andaryll chest plate and set position in menu
                 ItemStack chestPlate = new ItemStack(Material.GOLD_CHESTPLATE);
                 ItemMeta chestPlateMeta = chestPlate.getItemMeta();
-                chestPlateMeta.setLocalizedName("Andaryll Chestplate");
+                chestPlateMeta.setLocalizedName("Andaryll Chestplate§!");
                 chestPlate.setItemMeta(chestPlateMeta);
                 menu.setItem(13, chestPlate);
                 // create Andaryll legging and set position in menu
                 ItemStack leggings = new ItemStack(Material.GOLD_LEGGINGS);
                 ItemMeta leggingsMeta = leggings.getItemMeta();
-                leggingsMeta.setLocalizedName("Andaryll Leggings");
+                leggingsMeta.setLocalizedName("Andaryll Leggings§!");
                 leggings.setItemMeta(leggingsMeta);
                 menu.setItem(22, leggings);
             }
@@ -247,7 +257,7 @@ public class GeneralCreation implements Listener{
                 // create Adamantium sword and set position in menu
                 ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
                 ItemMeta swordMeta = sword.getItemMeta();
-                swordMeta.setLocalizedName("Adamantium Sword");
+                swordMeta.setLocalizedName("Adamantium Sword§!");
                 sword.setItemMeta(swordMeta);
                 menu.setItem(11, sword);
             }
@@ -258,20 +268,20 @@ public class GeneralCreation implements Listener{
                 //create Mythril helmet for use in menu and set position
                 ItemStack helmet = new ItemStack(Material.DIAMOND_HELMET);
                 ItemMeta helmetMeta = helmet.getItemMeta();
-                helmetMeta.setLocalizedName("Mythril Helmet");
+                helmetMeta.setLocalizedName("Mythril Helmet§!");
                 helmet.setItemMeta(helmetMeta);
                 menu.setItem(4, helmet);
                 // create Mythril chest plate and set position in menu
                 ItemStack chestPlate = new ItemStack(Material.
                                                      DIAMOND_CHESTPLATE);
                 ItemMeta chestPlateMeta = chestPlate.getItemMeta();
-                chestPlateMeta.setLocalizedName("Mythril Chestplate");
+                chestPlateMeta.setLocalizedName("Mythril Chestplate§!");
                 chestPlate.setItemMeta(chestPlateMeta);
                 menu.setItem(13, chestPlate);
                 // create Mythril legging and set position in menu
                 ItemStack leggings = new ItemStack(Material.DIAMOND_LEGGINGS);
                 ItemMeta leggingsMeta = leggings.getItemMeta();
-                leggingsMeta.setLocalizedName("Mythril Leggings");
+                leggingsMeta.setLocalizedName("Mythril Leggings§!");
                 leggings.setItemMeta(leggingsMeta);
                 menu.setItem(22, leggings);
             }else{
@@ -289,7 +299,7 @@ public class GeneralCreation implements Listener{
      * Get choice of what item to make from ore when choosing from unfinished
      * creation menu form anvil.
      *
-     * @param ice Event given whenever player clicks ona squar ein an inventory
+     * @param ice Event given whenever player clicks ona square in an inventory
      * @return    boolean - was event handling successful
      */
     @EventHandler
@@ -298,6 +308,21 @@ public class GeneralCreation implements Listener{
            ice.getClickedInventory().getName().equals("Choose what to create")){
             // get player object for sound playing on create item
             Player player = Bukkit.getPlayer(ice.getWhoClicked().getName());
+
+//            //make sure if they sneaked they couldn't take from menu
+//            ItemStack[] pItems = player.getInventory().getContents();
+//            for(int i = 0; i < pItems.length; i++){
+//                if(pItems[i].hasItemMeta())
+//                    if(pItems[i].getItemMeta().hasLocalizedName())
+//                        if(pItems[i].getItemMeta().getLocalizedName().
+//                                charAt(pItems[i].getItemMeta().
+//                                        getLocalizedName().length() - 1) ==
+//                                '!'){
+//                            player.getInventory().remove(pItems[i]);
+//
+//                            break;
+//                        }
+//            }
 
             // get material object
             ItemStack item = ice.getWhoClicked().
@@ -334,9 +359,10 @@ public class GeneralCreation implements Listener{
                 return true;
             }
 
-            // for use with shaping - times hammered, quality points, t/f needs
+            // for use with shaping - times hammered, , sign of qp,
+            //   quality points, t/f needs
             //   to be hammered
-            String hiddenMeta = "§0§0§t";
+            String hiddenMeta = "§0§t§0§t";
 
             // clicked on slot containing helmet, prepare ot give helmet with
             //   hidden meta data (for use in shaping phase).
